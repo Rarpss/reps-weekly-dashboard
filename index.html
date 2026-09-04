@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101119">
+  <meta name="description" content="Reps Weekly operations, usage and revenue at a glance.">
+  <title>Reps Weekly · Operations Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="brand"><span class="brand-mark" aria-hidden="true">R<span>W</span></span><div><h1>Reps Weekly</h1><p>Operations Dashboard</p></div></div>
+      <div class="header-right"><div class="clock"><time id="clock">—</time><div id="date">Local device time</div></div><span id="health" class="badge warning" role="status">CONNECTING</span></div>
+    </header>
+    <div id="banner" class="banner" role="status">Connecting to dashboard data…</div>
+    <section aria-labelledby="action-heading"><div class="section-heading"><h2 id="action-heading">Action required</h2><span>Support &amp; account requests</span></div><div id="actions" class="row actions"></div></section>
+    <section aria-labelledby="usage-heading"><div class="section-heading"><h2 id="usage-heading">Usage</h2><span>Your app at a glance</span></div><div id="usage" class="row usage"></div></section>
+    <section aria-labelledby="revenue-heading"><div class="section-heading"><h2 id="revenue-heading">Revenue</h2><span>AdMob · AUD</span></div><div id="revenue" class="row revenue"></div></section>
+    <section class="system" aria-labelledby="system-heading"><div class="section-heading"><h2 id="system-heading">System</h2><button id="refresh" type="button">Refresh now</button></div><div class="system-grid"><div><span>Last backend run</span><strong id="backend">—</strong></div><div><span>API generated at</span><strong id="generated">—</strong></div><div><span>Overall data freshness</span><strong id="freshness">Waiting for data</strong></div><div><span>Last browser fetch</span><strong id="last-fetch">—</strong></div></div><div class="system-footer"><span id="connection">Connecting…</span><span id="auto-refresh">Auto-refresh · every 5 minutes</span></div></section>
+    <noscript><p class="banner">Enable JavaScript to load the dashboard.</p></noscript>
+  </main>
+</body>
+</html>
