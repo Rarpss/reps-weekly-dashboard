@@ -39,3 +39,26 @@ Each valid JSON response and the successful browser-fetch time are saved in loca
 If storage is disabled or full, live updates continue and the system footer reports that caching is unavailable. Invalid cached JSON is ignored. Caching stores data, not the page assets: after closing the browser, opening the page from a completely offline device is not guaranteed. Keep the kiosk page open during temporary Wi-Fi outages.
 
 Only the supplied aggregate response is used. Do not expand the public endpoint with personal details or secrets. The dashboard does not require credentials.
+
+## Analytics and More Activity
+
+Usage has eight headlines: Active Users Today, Sessions Today, First Opens Today, Workouts Today, Active Users 7d, Workouts 7d, Active Users 30d and Top App Version. New Users Today is no longer a headline; returned metrics still participate in the generic health checks.
+
+The **More Activity** button opens an internally scrolling dialog with First Opens, Workouts, Interval Timer, Teams, App Health and Platform groups. Close it with Close, the backdrop, or Escape. Keyboard focus stays in the dialog and returns to the opening button. Opening it makes no API call: it uses the most recently fetched or cached JSON, and continues updating when normal refreshes complete.
+
+The event metric keys are:
+- first_opens_today, first_opens_7d
+- workouts_today, workouts_7d, workouts_30d
+- interval_timer_started_today, interval_timer_completed_today, interval_timer_started_7d, interval_timer_completed_7d
+- team_joins_today, team_joins_7d
+- app_exceptions_7d
+
+Platform details use android_users_today, ios_users_today, android_users_30d and ios_users_30d. All displayed metrics reuse the existing missing-value, error and freshness rules, including numeric zero. Missing extended metrics also contribute a warning to system health.
+
+Analytics first_open means the first app open after installing or reinstalling. It is not an account registration count.
+
+## AMOLED pixel shift
+
+The complete main dashboard content shifts instantly by at most 3 CSS pixels every ten minutes, cycling through (0,0), (3,0), (3,3), (0,3), (-3,3), (-3,0), (-3,-3), (0,-3), (3,-3), then repeating. There is no continuous animation or transition. The index is held only in JavaScript and starts over on reload. The separate five-minute data refresh never resets it.
+
+Change PIXEL_SHIFT_MS and PIXEL_SHIFT_OFFSETS near the top of app.js to adjust the interval and offsets. Keep offsets within 3–5 pixels and smaller than the main padding. The transform applies to an inner content wrapper, leaving the padding as movement clearance without changing layout dimensions. The fixed dialog sits outside this transformed wrapper, so its backdrop, scrolling and touch targets remain correct. This is subtle mitigation, not a guarantee against burn-in.

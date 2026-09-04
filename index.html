@@ -10,17 +10,31 @@
   <script src="app.js" defer></script>
 </head>
 <body>
-  <main>
+  <main id="dashboard"><div id="dashboard-content">
     <header>
       <div class="brand"><img class="brand-logo" src="icon_Merged-512.png" alt="Reps Weekly logo" width="48" height="48"><div><h1>Reps Weekly</h1><p>Operations Dashboard</p></div></div>
       <div class="header-right"><div class="clock"><time id="clock">—</time><div id="date">Local device time</div></div><span id="health" class="badge warning" role="status">CONNECTING</span></div>
     </header>
     <div id="banner" class="banner" role="status">Connecting to dashboard data…</div>
     <section aria-labelledby="action-heading"><div class="section-heading"><h2 id="action-heading">Action required</h2><span>Support &amp; account requests</span></div><div id="actions" class="row actions"></div></section>
-    <section aria-labelledby="usage-heading"><div class="section-heading"><h2 id="usage-heading">Usage</h2><span>Your app at a glance</span></div><div id="usage" class="row usage"></div></section>
+    <section aria-labelledby="usage-heading"><div class="section-heading"><h2 id="usage-heading">Usage</h2><button id="more-activity" type="button" aria-haspopup="dialog" aria-controls="activity-dialog" aria-expanded="false">More Activity</button></div><div id="usage" class="row usage"></div></section>
     <section aria-labelledby="revenue-heading"><div class="section-heading"><h2 id="revenue-heading">Revenue</h2><span>AdMob · AUD</span></div><div id="revenue" class="row revenue"></div></section>
     <section class="system" aria-labelledby="system-heading"><div class="section-heading"><h2 id="system-heading">System</h2><button id="refresh" type="button">Refresh now</button></div><div class="system-grid"><div><span>Last backend run</span><strong id="backend">—</strong></div><div><span>API generated at</span><strong id="generated">—</strong></div><div><span>Overall data freshness</span><strong id="freshness">Waiting for data</strong></div><div><span>Last browser fetch</span><strong id="last-fetch">—</strong></div></div><div class="system-footer"><span id="connection">Connecting…</span><span id="auto-refresh">Auto-refresh · every 5 minutes</span></div></section>
     <noscript><p class="banner">Enable JavaScript to load the dashboard.</p></noscript>
-  </main>
+  </div></main>
+  <div id="activity-overlay" class="activity-overlay" hidden>
+    <div id="activity-dialog" class="activity-dialog" role="dialog" aria-modal="true" aria-labelledby="activity-title" tabindex="-1">
+      <div class="activity-header"><h2 id="activity-title">More Activity</h2><button id="close-activity" type="button">Close</button></div>
+      <div class="activity-body">
+        <p class="activity-help">First opens count the first app open after install/reinstall, not account registrations.</p>
+        <section aria-labelledby="first-opens-heading"><h3 id="first-opens-heading">First Opens</h3><div id="activity-first-opens" class="row activity-metrics"></div></section>
+        <section aria-labelledby="workouts-heading"><h3 id="workouts-heading">Workouts</h3><div id="activity-workouts" class="row activity-metrics"></div></section>
+        <section aria-labelledby="timer-heading"><h3 id="timer-heading">Interval Timer</h3><div id="activity-timer" class="row activity-metrics"></div></section>
+        <section aria-labelledby="teams-heading"><h3 id="teams-heading">Teams</h3><div id="activity-teams" class="row activity-metrics"></div></section>
+        <section aria-labelledby="app-health-heading"><h3 id="app-health-heading">App Health</h3><div id="activity-health" class="row activity-metrics"></div></section>
+        <section aria-labelledby="platform-heading"><h3 id="platform-heading">Platform</h3><div id="activity-platform" class="row activity-metrics"></div></section>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

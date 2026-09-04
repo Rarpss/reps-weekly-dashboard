@@ -3,6 +3,10 @@
 
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbz0xjuLHvNjzGJod_XWIE_o5yG0Ygc8wXc4J1Ho9GEzRbD8UBkr4rprnOAfXYID6MRr/exec';
   var REFRESH_MS = 5 * 60 * 1000;
+  // Independent from data refresh; offsets are CSS pixels, with no animation.
+  var PIXEL_SHIFT_MS = 10 * 60 * 1000;
+  var PIXEL_SHIFT_OFFSETS = [[0, 0], [3, 0], [3, 3], [0, 3], [-3, 3], [-3, 0], [-3, -3], [0, -3], [3, -3]];
+  var shiftIndex = 0;
   var STALE_MS = 90 * 60 * 1000;
   var CRITICAL_MS = 3 * 60 * 60 * 1000;
   // The supplied timestamps have no timezone. Apps Script is assumed to use Brisbane.
@@ -15,18 +19,37 @@
     ['helpdesk_unread', 'Helpdesk Unread', 'actions'],
     ['deletion_requests', 'Deletion Requests', 'actions'],
     ['active_users_today', 'Active Users Today', 'usage'],
-    ['new_users_today', 'New Users Today', 'usage'],
     ['sessions_today', 'Sessions Today', 'usage'],
-    ['active_users_7d', 'Active Users · 7 days', 'usage'],
-    ['active_users_30d', 'Active Users · 30 days', 'usage'],
-    ['android_users_30d', 'Android Users · 30 days', 'usage'],
-    ['ios_users_30d', 'iOS Users · 30 days', 'usage'],
+    ['first_opens_today', 'First Opens Today', 'usage', 'Installs/reinstalls, not registrations'],
+    ['workouts_today', 'Workouts Today', 'usage'],
+    ['active_users_7d', 'Active Users 7d', 'usage'],
+    ['workouts_7d', 'Workouts 7d', 'usage'],
+    ['active_users_30d', 'Active Users 30d', 'usage'],
     ['top_app_version', 'Top App Version', 'usage'],
     ['admob_today', 'AdMob Today', 'revenue'],
     ['admob_yesterday', 'AdMob Yesterday', 'revenue'],
     ['admob_week', 'AdMob Week', 'revenue'],
     ['admob_all_time', 'AdMob All Time', 'revenue']
   ];
+  var activityDefinitions = [
+    ['first_opens_today', 'Today', 'activity-first-opens'],
+    ['first_opens_7d', '7 Days', 'activity-first-opens'],
+    ['workouts_today', 'Today', 'activity-workouts'],
+    ['workouts_7d', '7 Days', 'activity-workouts'],
+    ['workouts_30d', '30 Days', 'activity-workouts'],
+    ['interval_timer_started_today', 'Started Today', 'activity-timer'],
+    ['interval_timer_completed_today', 'Completed Today', 'activity-timer'],
+    ['interval_timer_started_7d', 'Started 7d', 'activity-timer'],
+    ['interval_timer_completed_7d', 'Completed 7d', 'activity-timer'],
+    ['team_joins_today', 'Joined Today', 'activity-teams'],
+    ['team_joins_7d', 'Joined 7d', 'activity-teams'],
+    ['app_exceptions_7d', 'App Exceptions 7d', 'activity-health'],
+    ['android_users_today', 'Android Users Today', 'activity-platform'],
+    ['ios_users_today', 'iOS Users Today', 'activity-platform'],
+    ['android_users_30d', 'Android Users 30d', 'activity-platform'],
+    ['ios_users_30d', 'iOS Users 30d', 'activity-platform']
+  ];
+  var allDefinitions = definitions.concat(activityDefinitions);
   var cards = {};
   function el(id) { return document.getElementById(id); }
   function text(node, value) { if (node.textContent !== value) { node.textContent = value; } }
@@ -71,7 +94,7 @@
     return isNaN(timestamp) ? 'Unknown' : new Date(timestamp).toLocaleString('en-AU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
   function createCards() {
-    definitions.forEach(function (definition) {
+    allDefinitions.forEach(function (definition) {
       var card = document.createElement('article');
       card.className = 'card';
       var title = document.createElement('h3'); title.textContent = definition[1]; card.appendChild(title);
@@ -81,12 +104,20 @@
       if (definition[2] === 'actions') { summary.appendChild(value); summary.appendChild(status); card.appendChild(summary); }
       else { card.appendChild(value); card.appendChild(status); }
       var meta = document.createElement('div'); meta.className = 'meta'; card.appendChild(meta);
+      if (definition[2] === 'usage' || definition[2] === 'revenue') {
+        // A compact landscape arrangement keeps large values and freshness together.
+        var compact = document.createElement('div'); compact.className = 'metric-summary';
+        var details = document.createElement('div'); details.className = 'metric-details';
+        compact.appendChild(value); details.appendChild(status); details.appendChild(meta);
+        compact.appendChild(details); card.appendChild(compact);
+      }
+      if (definition[3]) { var help = document.createElement('div'); help.className = 'metric-help'; help.textContent = definition[3]; card.appendChild(help); }
       el(definition[2]).appendChild(card);
-      cards[definition[0]] = { card: card, value: value, status: status, meta: meta };
+      cards[definition[2] + ':' + definition[0]] = { card: card, value: value, status: status, meta: meta };
     });
   }
   function renderMetric(definition, metrics) {
-    var key = definition[0], metric = metrics[key], nodes = cards[key];
+    var key = definition[0], metric = metrics[key], nodes = cards[definition[2] + ':' + key];
     var state = getMetricState(metric, key);
     nodes.card.className = 'card is-' + state.type;
     var value = '—';
@@ -110,7 +141,7 @@
   function updateSystemHealth(metrics, backendAge) {
     var hasError = !!fetchError, hasWarning = backendAge > STALE_MS, action = false;
     var keys = Object.keys(metrics);
-    definitions.forEach(function (definition) { if (keys.indexOf(definition[0]) < 0) { keys.push(definition[0]); } });
+    allDefinitions.forEach(function (definition) { if (keys.indexOf(definition[0]) < 0) { keys.push(definition[0]); } });
     if (keys.indexOf('dashboard_last_run') < 0) { keys.push('dashboard_last_run'); }
     keys.forEach(function (key) {
       var state = getMetricState(metrics[key], key);
@@ -123,7 +154,7 @@
   }
   function renderDashboard(nextData) {
     var metrics = nextData ? nextData.metrics : {};
-    if (nextData) { definitions.forEach(function (definition) { renderMetric(definition, metrics); }); }
+    if (nextData) { allDefinitions.forEach(function (definition) { renderMetric(definition, metrics); }); }
     var run = backendTime(metrics), backendAge = ageOf(run);
     text(el('backend'), run ? localDate(run) : 'Unknown');
     text(el('generated'), nextData ? localDate(nextData.generated_at) : '—');
@@ -184,6 +215,38 @@
     text(el('clock'), now.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
     text(el('date'), now.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }));
   }
+  function openActivity() {
+    // Cards already reflect the most recent JSON, including cached/error states.
+    el('activity-overlay').hidden = false;
+    el('more-activity').setAttribute('aria-expanded', 'true');
+    document.body.classList.add('activity-open');
+    el('close-activity').focus();
+    el('dashboard').setAttribute('aria-hidden', 'true');
+  }
+  function closeActivity() {
+    el('activity-overlay').hidden = true;
+    el('dashboard').removeAttribute('aria-hidden');
+    document.body.classList.remove('activity-open');
+    el('more-activity').setAttribute('aria-expanded', 'false');
+    el('more-activity').focus();
+  }
+  function shiftDashboard() {
+    shiftIndex = (shiftIndex + 1) % PIXEL_SHIFT_OFFSETS.length;
+    var offset = PIXEL_SHIFT_OFFSETS[shiftIndex];
+    el('dashboard-content').style.transform = 'translate(' + offset[0] + 'px, ' + offset[1] + 'px)';
+  }
+  el('more-activity').addEventListener('click', openActivity);
+  el('close-activity').addEventListener('click', closeActivity);
+  el('activity-overlay').addEventListener('click', function (event) {
+    if (event.target === el('activity-overlay')) { closeActivity(); }
+  });
+  document.addEventListener('keydown', function (event) {
+    if (el('activity-overlay').hidden) { return; }
+    if (event.key === 'Escape' || event.keyCode === 27) { event.preventDefault(); closeActivity(); }
+    // The close button is the dialog's only interactive control. Keep focus inside.
+    if (event.key === 'Tab' || event.keyCode === 9) { event.preventDefault(); el('close-activity').focus(); }
+  });
+  setInterval(shiftDashboard, PIXEL_SHIFT_MS);
   createCards(); loadCachedData(); renderDashboard(data); updateClock(); fetchDashboardData();
   el('refresh').addEventListener('click', fetchDashboardData);
   setInterval(fetchDashboardData, REFRESH_MS);
