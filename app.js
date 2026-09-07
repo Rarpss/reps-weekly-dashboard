@@ -18,12 +18,10 @@
   var definitions = [
     ['helpdesk_unread', 'Helpdesk Unread', 'actions'],
     ['deletion_requests', 'Deletion Requests', 'actions'],
+    ['bug_reports', 'Bug Reports', 'actions'],
+    ['player_reports', 'Player Reports', 'actions'],
     ['active_users_today', 'Active Users Today', 'usage'],
-    ['sessions_today', 'Sessions Today', 'usage'],
-    ['first_opens_today', 'First Opens Today', 'usage', 'Installs/reinstalls, not registrations'],
     ['workouts_today', 'Workouts Today', 'usage'],
-    ['active_users_7d', 'Active Users 7d', 'usage'],
-    ['workouts_7d', 'Workouts 7d', 'usage'],
     ['active_users_30d', 'Active Users 30d', 'usage'],
     ['top_app_version', 'Top App Version', 'usage'],
     ['admob_today', 'AdMob Today', 'revenue'],
@@ -32,11 +30,12 @@
     ['admob_all_time', 'AdMob All Time', 'revenue']
   ];
   var activityDefinitions = [
-    ['first_opens_today', 'Today', 'activity-first-opens'],
-    ['first_opens_7d', '7 Days', 'activity-first-opens'],
-    ['workouts_today', 'Today', 'activity-workouts'],
-    ['workouts_7d', '7 Days', 'activity-workouts'],
-    ['workouts_30d', '30 Days', 'activity-workouts'],
+    ['sessions_today', 'Sessions Today', 'activity-general'],
+    ['first_opens_today', 'First Opens Today', 'activity-general'],
+    ['first_opens_7d', 'First Opens 7d', 'activity-general'],
+    ['active_users_7d', 'Active Users 7d', 'activity-general'],
+    ['workouts_7d', 'Workouts 7d', 'activity-general'],
+    ['workouts_30d', 'Workouts 30d', 'activity-general'],
     ['interval_timer_started_today', 'Started Today', 'activity-timer'],
     ['interval_timer_completed_today', 'Completed Today', 'activity-timer'],
     ['interval_timer_started_7d', 'Started 7d', 'activity-timer'],
@@ -74,7 +73,7 @@
     if (age === Infinity) { return { type: 'warning', label: 'Update Time Unknown' }; }
     if (age > CRITICAL_MS) { return { type: 'critical', label: 'Data Stale · over 3 hr' }; }
     if (age > STALE_MS) { return { type: 'warning', label: 'Data Stale' }; }
-    if (key === 'helpdesk_unread' || key === 'deletion_requests') {
+    if (key === 'helpdesk_unread' || key === 'deletion_requests' || key === 'bug_reports' || key === 'player_reports') {
       return metric.value > 0 ? { type: 'action', label: 'Action Required' } : { type: 'healthy', label: 'Clear' };
     }
     return { type: 'healthy', label: 'Up to date' };
@@ -148,7 +147,7 @@
       if (state.type === 'error') { hasError = true; }
       if (state.type === 'warning' || state.type === 'critical') { hasWarning = true; }
     });
-    ['helpdesk_unread', 'deletion_requests'].forEach(function (key) { if (validValue(metrics[key], key) && metrics[key].value > 0) { action = true; } });
+    ['helpdesk_unread', 'deletion_requests', 'bug_reports', 'player_reports'].forEach(function (key) { if (validValue(metrics[key], key) && metrics[key].value > 0) { action = true; } });
     var label = hasError ? 'ERROR' : action ? 'ACTION REQUIRED' : hasWarning ? 'WARNING' : 'HEALTHY';
     text(el('health'), label); el('health').className = 'badge ' + (hasError ? 'error' : action ? 'action' : hasWarning ? 'warning' : 'healthy');
   }

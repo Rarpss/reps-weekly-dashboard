@@ -24,7 +24,7 @@ h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 1.8px; margin: 
 .section-heading > span { font-size: 13px; color: #a5a3b6; }
 .row { display: flex; flex-wrap: wrap; margin: -5px; }
 .card { min-width: 0; margin: 5px; padding: 13px 16px; background: #1b1d29; border: 1px solid #303241; border-radius: 9px; position: relative; }
-.actions .card { width: calc(50% - 10px); border-left: 4px solid #f4c879; }
+.actions .card { width: calc(25% - 10px); border-left: 4px solid #f4c879; }
 .usage .card, .revenue .card { width: calc(25% - 10px); }
 .card h3 { margin: 0; font-size: 15px; font-weight: 500; color: #ceccdc; }
 .value { font-size: 34px; font-weight: 700; line-height: 1.2; letter-spacing: -1px; margin-top: 5px; overflow-wrap: break-word; word-wrap: break-word; font-variant-numeric: tabular-nums; }
@@ -51,6 +51,7 @@ button:disabled { opacity: .6; cursor: wait; }
 .system-grid strong { font-size: 14px; font-weight: 500; overflow-wrap: break-word; }
 .system-footer { font-size: 12px; color: #aaa7bc; margin-top: 4px; }
 @media (max-width: 1050px) { main { padding: 18px; } .clock { margin-right: 15px; } .card { padding: 11px 13px; } }
+@media (max-width: 900px) { .actions .card { width: calc(50% - 10px); } }
 @media (max-width: 700px) { main { padding: 16px; } header { flex-wrap: wrap; } .header-right { width: 100%; margin-top: 18px; } .clock { text-align: left; } .usage .card, .revenue .card { width: calc(50% - 10px); } .system-grid > div { width: 50%; } .action-summary { display: block; } .section-heading > span { display: none; } .system-footer { align-items: flex-start; flex-direction: column; } .system-footer span { margin-bottom: 6px; } }
 @media (max-width: 380px) { .actions .card { width: calc(100% - 10px); } .badge { font-size: 12px; padding: 9px; } #clock { font-size: 22px; } }
 

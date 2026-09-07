@@ -40,22 +40,25 @@ If storage is disabled or full, live updates continue and the system footer repo
 
 Only the supplied aggregate response is used. Do not expand the public endpoint with personal details or secrets. The dashboard does not require credentials.
 
-## Analytics and More Activity
+## Operations, Analytics and More Activity
 
-Usage has eight headlines: Active Users Today, Sessions Today, First Opens Today, Workouts Today, Active Users 7d, Workouts 7d, Active Users 30d and Top App Version. New Users Today is no longer a headline; returned metrics still participate in the generic health checks.
+The Action Required row contains four operational counts: Helpdesk Unread (`helpdesk_unread`), Deletion Requests (`deletion_requests`), Bug Reports (`bug_reports`) and Player Reports (`player_reports`). A fresh zero is Clear; any fresh positive count requires action. Any positive operational count triggers the overall ACTION REQUIRED badge unless an ERROR has higher priority. Bug Reports and Player Reports count currently existing Firestore report documents because actioned reports are manually deleted.
 
-The **More Activity** button opens an internally scrolling dialog with First Opens, Workouts, Interval Timer, Teams, App Health and Platform groups. Close it with Close, the backdrop, or Escape. Keyboard focus stays in the dialog and returns to the opening button. Opening it makes no API call: it uses the most recently fetched or cached JSON, and continues updating when normal refreshes complete.
+The permanent Usage row is deliberately limited to Active Users Today, Workouts Today, Active Users 30d and Top App Version.
 
-The event metric keys are:
-- first_opens_today, first_opens_7d
-- workouts_today, workouts_7d, workouts_30d
-- interval_timer_started_today, interval_timer_completed_today, interval_timer_started_7d, interval_timer_completed_7d
-- team_joins_today, team_joins_7d
-- app_exceptions_7d
+The **More Activity** button opens an internally scrolling dialog with these already-fetched metrics:
 
-Platform details use android_users_today, ios_users_today, android_users_30d and ios_users_30d. All displayed metrics reuse the existing missing-value, error and freshness rules, including numeric zero. Missing extended metrics also contribute a warning to system health.
+- General Usage: Sessions Today, First Opens Today, First Opens 7d, Active Users 7d, Workouts 7d and Workouts 30d.
+- Interval Timer: started and completed counts for today and 7 days.
+- Teams: Joined Today and Joined 7d.
+- App Health / Analytics: App Exceptions 7d.
+- Platform: Android and iOS users for today and 30 days.
 
-Analytics first_open means the first app open after installing or reinstalling. It is not an account registration count.
+Close it with Close, the backdrop, or Escape. Keyboard focus stays in the dialog and returns to the opening button. Opening it makes no API call: it uses the most recently fetched or cached JSON and continues updating when normal refreshes complete. All metrics reuse the existing missing-value, error and freshness rules, including numeric zero. Missing displayed metrics also contribute a warning to system health.
+
+Analytics `first_open` means the first app open after installing or reinstalling. It is not an account registration count.
+
+Crashlytics is intentionally absent. Although Firebase BigQuery datasets exist, the export currently has no usable crash tables or data, so displaying zero crashes would be misleading.
 
 ## AMOLED pixel shift
 
